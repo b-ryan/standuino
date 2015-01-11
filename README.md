@@ -46,3 +46,19 @@ ino serial
 ```
 
 To quit: `<C-a><C-q>`
+
+Development
+===========
+
+```
+mkvirtualenv standuino
+toggleglobalsitepackages # enable global packages
+./setup.py develop
+```
+
+Tests
+=====
+
+```
+make test
+```

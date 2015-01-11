@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 A library for connecting to the standuino Arduino program for reading
 distances.
@@ -15,6 +14,7 @@ import serial
 from json import loads
 import argparse
 import time
+import datetime
 
 OLD_MESSAGE_THRESHOLD_MS = 100
 
@@ -38,6 +38,7 @@ def parse_and_validate(line):
     if "distance_cm" not in message:
         raise ValidationException("key 'distance_cm' not in {}".format(line))
 
+    message["datetime"] = datetime.datetime.now()
     return message
 
 
@@ -87,23 +88,3 @@ def connect(port, baud):
     else:
         logger.info("connected")
         return arduino
-
-
-def main():
-    logging.basicConfig(level=logging.INFO)
-
-    parser = argparse.ArgumentParser(description="Lister for standuino.ino")
-    parser.add_argument("--device", help="Device/port to listen to",
-                        default="/dev/ttyACM0")
-    parser.add_argument("--baud-rate", default=9600, type=int)
-    args = parser.parse_args()
-
-
-    def cbk(message):
-        print "Current distance (CM): {}".format(message["distance_cm"])
-
-    arduino = connect(args.device, args.baud_rate)
-    main_loop(arduino, cbk)
-
-if __name__ == "__main__":
-    main()
