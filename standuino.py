@@ -4,7 +4,6 @@ A library for connecting to the standuino Arduino program for reading
 distances.
 
 TODO:
- - change main function to print the distance
  - rename? other ideas: ardu-sonic, ardu-distance
  - maybe have this script write to the arduino to initialize the current
    session. This would make the clear_old_messages function less hacky. It
@@ -72,6 +71,7 @@ def handle_line(line, cbk):
 
 
 def main_loop(arduino, cbk):
+    handle_line(clear_old_messages(arduino), cbk)
     while True:
         line = read(arduino)
         handle_line(line, cbk)
@@ -103,7 +103,6 @@ def main():
         print "Current distance (CM): {}".format(message["distance_cm"])
 
     arduino = connect(args.device, args.baud_rate)
-    handle_line(clear_old_messages(arduino), cbk)
     main_loop(arduino, cbk)
 
 if __name__ == "__main__":
