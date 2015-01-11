@@ -1,3 +1,16 @@
+"""
+A library for connecting to the standuino Arduino program for reading
+distances.
+
+TODO:
+ - remove logging
+ - change main function to print the distance
+ - rename? other ideas: ardu-sonic, ardu-distance
+ - maybe have this script write to the arduino to initialize the current
+   session. This would make the clear_old_messages function less hacky. It
+   would also allow for accurate timing
+"""
+
 #!/usr/bin/env python
 import logging
 import serial
