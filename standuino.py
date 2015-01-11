@@ -1,9 +1,9 @@
+#!/usr/bin/env python
 """
 A library for connecting to the standuino Arduino program for reading
 distances.
 
 TODO:
- - remove logging
  - change main function to print the distance
  - rename? other ideas: ardu-sonic, ardu-distance
  - maybe have this script write to the arduino to initialize the current
@@ -11,7 +11,6 @@ TODO:
    would also allow for accurate timing
 """
 
-#!/usr/bin/env python
 import logging
 import serial
 from json import loads
@@ -20,23 +19,25 @@ import time
 
 OLD_MESSAGE_THRESHOLD_MS = 100
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+class ValidationException(Exception):
+    pass
 
 
 def read(arduino):
     return arduino.readline().replace("\r\n", "").replace("\0", "")
 
 
-def parse(line):
-    logger.debug("received {} HEX:({})"
-                 .format(line, ':'.join(x.encode("hex") for x in line)))
-
+def parse_and_validate(line):
     try:
         message = loads(line)
     except ValueError as e:
-        logger.exception("invalid JSON received".format(line))
-        return None
+        raise ValidationException("{} is not valid JSON".format(line))
+
+    if "distance_cm" not in message:
+        raise ValidationException("key 'distance_cm' not in {}".format(line))
 
     return message
 
@@ -60,47 +61,50 @@ def clear_old_messages(arduino):
         logger.debug("ignoring {}".format(line))
 
 
-def handle_line(line):
-    json = parse(line)
-    if not json:
+def handle_line(line, cbk):
+    try:
+        message = parse_and_validate(line)
+    except ValidationException as e:
+        logger.error(e.message)
         return
-
-    if "distance_cm" not in json:
-        logger.warn("key 'distance_cm' not in JSON; moving on...")
-        return
-
-    distance_cm = json["distance_cm"]
-    logging.info("Current distance (CM): {}".format(distance_cm))
+    else:
+        cbk(message)
 
 
-def main_loop(arduino):
-    handle_line(clear_old_messages(arduino))
+def main_loop(arduino, cbk):
     while True:
-        handle_line(read(arduino))
+        line = read(arduino)
+        handle_line(line, cbk)
 
 
 def connect(port, baud):
+    logger.info("connecting to arduino on {} with baud {}".format(port, baud))
     try:
         arduino = serial.Serial(port, baud)
     except Exception as e:
         logger.exception("connection failed".format(args.device))
         raise e
-    return arduino
+    else:
+        logger.info("connected")
+        return arduino
 
 
 def main():
+    logging.basicConfig(level=logging.INFO)
+
     parser = argparse.ArgumentParser(description="Lister for standuino.ino")
     parser.add_argument("--device", help="Device/port to listen to",
                         default="/dev/ttyACM0")
     parser.add_argument("--baud-rate", default=9600, type=int)
     args = parser.parse_args()
 
-    logger.info("connecting to arduino on {} with baud {}"
-                .format(args.device, args.baud_rate))
+
+    def cbk(message):
+        print "Current distance (CM): {}".format(message["distance_cm"])
 
     arduino = connect(args.device, args.baud_rate)
-    logger.info("connected")
-    main_loop(arduino)
+    handle_line(clear_old_messages(arduino), cbk)
+    main_loop(arduino, cbk)
 
 if __name__ == "__main__":
     main()
