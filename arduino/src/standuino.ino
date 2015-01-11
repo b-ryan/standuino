@@ -29,18 +29,14 @@ int readDistanceInCm() {
   return distance;
 }
 
-void checkStatus() {
+void loop() {
   int distance = readDistanceInCm();
 
-  if(distance < 0)
+  if (distance < 0) {
     return;
+  }
 
-  Serial.print("{\"distance_cm\": ");
-  Serial.print(distance);
-  Serial.println("}");
-}
-
-void loop() {
-  checkStatus();
+  /* delay(50); */
+  Serial.println("{\"distance_cm\": " + String(distance) + "}");
   delay(1000);
 }

@@ -7,8 +7,7 @@ Prerequisites
 =============
 
 ```
-apt-get install arduino-core
-apt-get install picocom
+apt-get install arduino-core picocom
 pip install ino
 ```
 
