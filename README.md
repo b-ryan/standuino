@@ -1,63 +1,18 @@
-standuino
-=========
+# standuino
 
-Code to monitor an arduino for sitting / standing
+This is the companion library to https://github.com/b-ryan/standuino-arduino.
+It reads data from an arduino and does stuff with the data.
 
-Prerequisites
-=============
+## Development
 
-```
-apt-get install arduino-core picocom
-pip install ino
-```
-
-Setup Arduino
-=============
-
-Check out the sketch
-[here](http://arduinobasics.blogspot.com/2012/11/arduinobasics-hc-sr04-ultrasonic-sensor.html).
-
-To give a brief rundown, the ultrasonic sensor needs four connections. You will
-see labels for each pin on the front of the sensor. These are named
-
-* `VCC` for voltage
-* `Trig` for trigger
-* `Echo`
-* `GND` for ground
-
-Connect `VCC` pin to 5V power. Connect ground to ground. Connect 7 to `Echo`
-and connect 8 to `Trig`.
-
-
-Build and load
-==============
-
-```
-cd arduino
-ino build
-ino upload
-```
-
-Serial
-======
-
-```
-ino serial
-```
-
-To quit: `<C-a><C-q>`
-
-Development
-===========
+Set up a virtual environment and install the requirements:
 
 ```
 mkvirtualenv standuino
-toggleglobalsitepackages # enable global packages
-./setup.py develop
+pip install -r requirements.txt -r dev_requirements.txt
 ```
 
-Tests
-=====
+## Tests
 
 ```
 make test

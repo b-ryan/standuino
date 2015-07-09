@@ -11,10 +11,11 @@ TODO:
 
 import logging
 import serial
-from json import loads
 import argparse
 import time
 import datetime
+
+from json import loads
 
 OLD_MESSAGE_THRESHOLD_MS = 100
 
@@ -25,7 +26,7 @@ class ValidationException(Exception):
     pass
 
 
-def read(arduino):
+def readline(arduino):
     return arduino.readline().replace("\r\n", "").replace("\0", "")
 
 
@@ -38,7 +39,6 @@ def parse_and_validate(line):
     if "distance_cm" not in message:
         raise ValidationException("key 'distance_cm' not in {}".format(line))
 
-    message["datetime"] = datetime.datetime.now()
     return message
 
 
@@ -55,7 +55,7 @@ def clear_old_messages(arduino):
     current line and returns the line."""
     while True:
         then_ms = now_ms()
-        line = read(arduino)
+        line = readline(arduino)
         if (now_ms() - then_ms) > OLD_MESSAGE_THRESHOLD_MS:
             return line
         logger.debug("ignoring {}".format(line))
@@ -64,18 +64,12 @@ def clear_old_messages(arduino):
 def handle_line(line, cbk):
     try:
         message = parse_and_validate(line)
+        message["datetime"] = datetime.datetime.now()
     except ValidationException as e:
         logger.error(e.message)
         return
     else:
         cbk(message)
-
-
-def main_loop(arduino, cbk):
-    handle_line(clear_old_messages(arduino), cbk)
-    while True:
-        line = read(arduino)
-        handle_line(line, cbk)
 
 
 def connect(port, baud):
@@ -88,3 +82,10 @@ def connect(port, baud):
     else:
         logger.info("connected")
         return arduino
+
+
+def main_loop(arduino, cbk):
+    handle_line(clear_old_messages(arduino), cbk)
+    while True:
+        line = readline(arduino)
+        handle_line(line, cbk)
