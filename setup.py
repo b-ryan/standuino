@@ -9,4 +9,5 @@ setup(
     name=NAME,
     version=VERSION,
     packages=find_packages(),
+    scripts=["scripts/standuino"],
 )

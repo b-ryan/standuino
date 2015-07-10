@@ -8,12 +8,10 @@ TODO:
    session. This would make the clear_old_messages function less hacky. It
    would also allow for accurate timing
 """
-
 import logging
 import serial
 import argparse
 import time
-import datetime
 
 from json import loads
 
@@ -64,7 +62,6 @@ def clear_old_messages(arduino):
 def handle_line(line, cbk):
     try:
         message = parse_and_validate(line)
-        message["datetime"] = datetime.datetime.now()
     except ValidationException as e:
         logger.error(e.message)
         return
@@ -72,7 +69,7 @@ def handle_line(line, cbk):
         cbk(message)
 
 
-def connect(port, baud):
+def connect(port, baud=9600):
     logger.info("connecting to arduino on {} with baud {}".format(port, baud))
     try:
         arduino = serial.Serial(port, baud)
