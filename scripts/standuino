@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import standuino.cli
+import standuino.main
 import sys
 
-standuino.cli.main(sys.argv[1:])
+standuino.main.main(sys.argv[1:])

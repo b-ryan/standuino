@@ -3,19 +3,12 @@ import screen_events
 from ino.environment import Environment
 import threading
 import logging
-import time
 import copy
-
-logging.basicConfig(level=logging.DEBUG)
-
-
-def dt():
-    return time.strftime('%Y-%m-%d %H:%M:%S')
 
 
 def msg(state_type, state_value):
     assert(state_type in ("standing", "at_desk"))
-    return (state_type, state_value, dt(),)
+    return (state_type, state_value,)
 
 
 class State:
@@ -37,7 +30,6 @@ class BaseThread(threading.Thread):
 
     def queue_state(self, state_type, state_value):
         message = msg(state_type, state_value)
-        logging.debug("Queuing new message: " + str(message))
         self.queue.put(message)
 
 
@@ -49,7 +41,7 @@ class ArduinoThread(BaseThread):
 
     def arduino_cbk(self, arduino_message):
         distance_cm = arduino_message["distance_cm"]
-        standing = (distance_cm > self.threshold_cm)
+        standing = (distance_cm < self.threshold_cm)
         if standing != self.current_state:
             self.queue_state("standing", standing)
             self.current_state = standing

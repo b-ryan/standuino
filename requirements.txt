@@ -1,4 +1,5 @@
 pyserial
 ino
 requests
+pytz
 git+git://github.com/b-ryan/py-screen-events.git@43bd31a11b01f7c1abbbd7f4c404c993c47a291c
