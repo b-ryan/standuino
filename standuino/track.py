@@ -23,7 +23,6 @@ class State:
         self.at_desk = False
         self.standing = False
 
-
     def __str__(self):
         if not self.at_desk:
             return "Away from desk"
@@ -35,7 +34,6 @@ class BaseThread(threading.Thread):
         threading.Thread.__init__(self)
         self.daemon = True
         self.queue = queue
-
 
     def queue_state(self, state_type, state_value):
         message = msg(state_type, state_value)
